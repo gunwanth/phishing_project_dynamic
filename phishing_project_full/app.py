@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 
-from gmail_client import GmailClient
+from phishing_project_full.gmail_client import GmailClient
 from phishing_project_full.phishing_detector import PhishingDetector
 from phishing_project_full.auth import login_block
 from phishing_project_full.notifier import send_notification
