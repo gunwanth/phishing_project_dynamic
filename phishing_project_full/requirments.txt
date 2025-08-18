@@ -1,5 +1,5 @@
 streamlit==1.35.0
-streamlit-autorefresh==0.0.1   # for auto-refresh
+streamlit-autorefresh==0.0.1
 
 # Gmail API + Auth
 google-api-python-client==2.125.0
