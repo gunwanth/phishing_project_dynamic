@@ -1,12 +1,14 @@
 import streamlit as st
 import os
+import json
 
-from phishing_project_full.gmail_client import GmailClient
-from phishing_project_full.phishing_detector import PhishingDetector
-from phishing_project_full.auth import login_block
-from phishing_project_full.notifier import send_notification
+# ✅ Relative imports for package execution
+from .gmail_client import GmailClient
+from .phishing_detector import PhishingDetector
+from .auth import login_block
+from .notifier import send_notification
 
-# ----------------- Streamlit Page Setup -----------------
+# ----------------- Page Setup -----------------
 st.set_page_config(page_title="Phishing Email Detector", layout="wide")
 st.title("📬 Gmail Inbox - Phishing Detection")
 
@@ -34,16 +36,20 @@ gmail = st.session_state.gmail_client
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = gmail.authenticate()
 
-if not st.session_state.authenticated:
-    st.error("❌ Authentication failed. Please check credentials.")
+if not st.session_state.authenticated or not gmail.service:
+    st.error("❌ Authentication failed. Cannot access Gmail API.")
     st.stop()
 
 detector = PhishingDetector()
 
 # ----------------- Fetch Emails -----------------
-emails = gmail.get_recent_emails(limit=20)
-st.subheader("📥 Recent Emails")
+try:
+    emails = gmail.get_recent_emails(limit=20)
+except Exception as e:
+    st.error(f"Failed to fetch emails: {e}")
+    st.stop()
 
+st.subheader("📥 Recent Emails")
 phishing_count = 0
 
 for email in emails:
