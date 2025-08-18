@@ -1,0 +1,8 @@
+# Ignore secrets
+credentials.json
+token*.pkl
+users.json
+
+# Python cache
+__pycache__/
+*.pyc
