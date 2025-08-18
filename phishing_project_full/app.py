@@ -1,11 +1,16 @@
 import streamlit as st
 import json
 import os
-from auth import login_block
-from notifier import send_notification  # ✅ New import for phone alerts
-from gmail_client import GmailClient
-from phishing_detector import PhishingDetector
+from streamlit_autorefresh import st_autorefresh
 
+# ✅ Corrected imports
+from phishing_project_full.gmail_client import GmailClient
+from phishing_project_full.phishing_detector import PhishingDetector
+from phishing_project_full.auth import login_block
+from phishing_project_full.notifier import send_notification  # ✅ Notifications
+
+# 🔄 Auto-refresh every 30 seconds
+st_autorefresh(interval=30000, key="email_refresh")
 
 # ✅ Page setup
 st.set_page_config(page_title="Phishing Email Detector", layout="wide")
@@ -50,27 +55,21 @@ for email in emails:
     level = detector.get_risk_level(score)
     threats = detector.detect_threats(email)
 
-    # ✅ Notifications (without disturbing logic)
     if level == "High":
         phishing_count += 1
-        try:
-            send_notification(
-                title="🚨 Phishing Alert",
-                message=f"High-risk email detected!\nFrom: {email['sender']}\nSubject: {email['subject']}"
-            )
-        except Exception as e:
-            print(f"Notification failed: {e}")
+        # ✅ Send phishing alert
+        send_notification(
+            title="🚨 Phishing Alert",
+            message=f"High-risk email detected from: {email['sender']}\nSubject: {email['subject']}"
+        )
 
     elif threats:
-        try:
-            send_notification(
-                title="⚠️ Suspicious Email",
-                message=f"From: {email['sender']}\nThreats: {', '.join(threats)}"
-            )
-        except Exception as e:
-            print(f"Notification failed: {e}")
+        # ✅ Send warning alert
+        send_notification(
+            title="⚠️ Suspicious Email Detected",
+            message=f"Email from: {email['sender']}\nThreats: {', '.join(threats)}"
+        )
 
-    # ✅ UI Display (unchanged)
     with st.expander(f"📧 {email['subject']}"):
         st.markdown(f"**From:** {email['sender']}")
         st.markdown(f"**Date:** {email['date']}")
