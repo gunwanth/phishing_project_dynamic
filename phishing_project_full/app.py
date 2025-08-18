@@ -1,11 +1,14 @@
 import streamlit as st
 import json
 import os
-from gmail_client import GmailClient
-from phishing_detector import PhishingDetector
 from auth import login_block
 from streamlit_autorefresh import st_autorefresh
 from notifier import send_notification  # ✅ New import for phone alerts
+from phishing_project_full.gmail_client import GmailClient
+from phishing_project_full.phishing_detector import PhishingDetector
+from phishing_project_full.auth import login_block
+from phishing_project_full.notifier import send_notification
+
 
 # 🔄 Auto-refresh every 30 seconds
 st_autorefresh(interval=30000, key="email_refresh")
