@@ -1,16 +1,12 @@
 import streamlit as st
 import json
 import os
-from streamlit_autorefresh import st_autorefresh
 
 # ✅ Corrected imports
 from phishing_project_full.gmail_client import GmailClient
 from phishing_project_full.phishing_detector import PhishingDetector
 from phishing_project_full.auth import login_block
 from phishing_project_full.notifier import send_notification  # ✅ Notifications
-
-# 🔄 Auto-refresh every 30 seconds
-st_autorefresh(interval=30000, key="email_refresh")
 
 # ✅ Page setup
 st.set_page_config(page_title="Phishing Email Detector", layout="wide")
