@@ -1,38 +1,35 @@
 import streamlit as st
-import json
 import os
 
-# ✅ Corrected imports
-from phishing_project_full.gmail_client import GmailClient
+from gmail_client import GmailClient
 from phishing_project_full.phishing_detector import PhishingDetector
 from phishing_project_full.auth import login_block
-from phishing_project_full.notifier import send_notification  # ✅ Notifications
+from phishing_project_full.notifier import send_notification
 
-# ✅ Page setup
+# ----------------- Streamlit Page Setup -----------------
 st.set_page_config(page_title="Phishing Email Detector", layout="wide")
+st.title("📬 Gmail Inbox - Phishing Detection")
 
-# 🔐 Login
+# ----------------- Login -----------------
 user_email = login_block()
 if not user_email:
     st.stop()
 
-# ✅ Sidebar logout
+# ----------------- Sidebar -----------------
 with st.sidebar:
     st.title("Session")
     st.markdown(f"**Logged in as:** {user_email}")
     if st.button("🔓 Logout"):
-        token_path = f"token_{user_email}.pkl"
-        if os.path.exists(token_path):
-            os.remove(token_path)
+        token_file = f"token_{user_email}.pkl"
+        if os.path.exists(token_file):
+            os.remove(token_file)
         st.session_state.clear()
         st.rerun()
 
-# 🎯 Title
-st.title("📬 Gmail Inbox - Phishing Detection")
-
-# ✅ Initialize Gmail and Detector
-gmail = GmailClient(user_email)
-detector = PhishingDetector()
+# ----------------- Initialize Gmail and Detector -----------------
+if 'gmail_client' not in st.session_state:
+    st.session_state.gmail_client = GmailClient(user_email)
+gmail = st.session_state.gmail_client
 
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = gmail.authenticate()
@@ -41,6 +38,9 @@ if not st.session_state.authenticated:
     st.error("❌ Authentication failed. Please check credentials.")
     st.stop()
 
+detector = PhishingDetector()
+
+# ----------------- Fetch Emails -----------------
 emails = gmail.get_recent_emails(limit=20)
 st.subheader("📥 Recent Emails")
 
@@ -53,14 +53,11 @@ for email in emails:
 
     if level == "High":
         phishing_count += 1
-        # ✅ Send phishing alert
         send_notification(
             title="🚨 Phishing Alert",
             message=f"High-risk email detected from: {email['sender']}\nSubject: {email['subject']}"
         )
-
     elif threats:
-        # ✅ Send warning alert
         send_notification(
             title="⚠️ Suspicious Email Detected",
             message=f"Email from: {email['sender']}\nThreats: {', '.join(threats)}"
@@ -89,6 +86,6 @@ for email in emails:
             else:
                 st.error("Failed to mark as spam.")
 
-# 📊 Summary
+# ----------------- Summary -----------------
 st.markdown("---")
 st.metric("🚨 Total Phishing Emails Detected", f"{phishing_count} of {len(emails)}")
